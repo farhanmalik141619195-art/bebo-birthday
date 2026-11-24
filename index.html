@@ -1,0 +1,596 @@
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Happy Birthday Bebo — From Hani</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0f0714;
+      --card: rgba(31, 16, 41, 0.78);
+      --gold: #f6c973;
+      --rose: #ff6b9d;
+      --soft: #f8e9f2;
+      --muted: #cbb4c9;
+      --border: rgba(246, 201, 115, 0.25);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: radial-gradient(circle at top, #271035 0%, #0f0714 65%);
+      color: var(--soft);
+      min-height: 100vh;
+      overflow-x: hidden;
+      line-height: 1.7;
+    }
+    h1, h2, h3, .serif { font-family: 'Cormorant Garamond', serif; }
+
+    /* Lock Screen */
+    #lockScreen {
+      position: fixed; inset: 0; z-index: 9999;
+      background: radial-gradient(circle at center, #2c113d 0%, #0b0510 85%);
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px; transition: opacity 0.6s ease, visibility 0.6s ease;
+    }
+    #lockScreen.unlocked { opacity: 0; visibility: hidden; pointer-events: none; }
+    .vault-box {
+      max-width: 390px; width: 100%;
+      background: rgba(29, 14, 39, 0.92);
+      border: 1px solid var(--border);
+      border-radius: 28px; padding: 30px 24px;
+      text-align: center;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.65);
+    }
+    .lock-icon {
+      width: 64px; height: 64px; margin: 0 auto 14px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, #ff6b9d, #f6c973);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 30px;
+    }
+    .pin-dots { display: flex; justify-content: center; gap: 14px; margin: 20px 0 8px; }
+    .pin-dot {
+      width: 16px; height: 16px; border-radius: 50%;
+      border: 2px solid var(--gold); transition: all 0.2s;
+    }
+    .pin-dot.filled { background: var(--rose); border-color: var(--rose); transform: scale(1.15); }
+    #pinError { color: #ff85a9; font-size: 13px; min-height: 20px; margin-bottom: 12px; }
+    .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .key-btn {
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+      color: #fff; font-size: 20px; font-weight: 600;
+      padding: 14px 0; border-radius: 16px; cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .key-btn:active { transform: scale(0.95); background: rgba(255,107,157,0.3); }
+
+    /* Main Content */
+    .container { max-width: 980px; margin: 0 auto; padding: 28px 18px 80px; }
+    .top-bar {
+      display: flex; justify-content: space-between; align-items: center;
+      gap: 10px; flex-wrap: wrap; margin-bottom: 26px;
+      background: var(--card); border: 1px solid var(--border);
+      padding: 12px 18px; border-radius: 20px;
+    }
+    .btn {
+      border: none; border-radius: 999px; padding: 10px 18px;
+      font-weight: 600; font-size: 14px; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 8px;
+      transition: transform 0.15s;
+    }
+    .btn:active { transform: scale(0.96); }
+    .btn-rose { background: linear-gradient(135deg, #ff5e94, #ff85a9); color: #fff; }
+    .btn-gold { background: linear-gradient(135deg, #f6c973, #e6a947); color: #1b0c24; }
+    .btn-glass { background: rgba(255,255,255,0.08); color: var(--soft); border: 1px solid var(--border); }
+
+    .hero {
+      text-align: center; padding: 36px 22px;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 30px; margin-bottom: 28px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.45);
+    }
+    .badge {
+      display: inline-block; padding: 6px 16px; border-radius: 999px;
+      background: rgba(246, 201, 115, 0.14); border: 1px solid var(--border);
+      color: var(--gold); font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .hero h1 { font-size: clamp(34px, 6vw, 54px); color: #fff; line-height: 1.15; margin-bottom: 10px; }
+    .hero p { color: var(--muted); max-width: 640px; margin: 0 auto 22px; font-size: 16px; }
+
+    .hero-frame {
+      max-width: 390px; margin: 0 auto;
+      padding: 12px; border-radius: 24px;
+      background: linear-gradient(145deg, rgba(246,201,115,0.35), rgba(255,107,157,0.25));
+      border: 1px solid var(--gold);
+    }
+    .hero-frame img {
+      width: 100%; border-radius: 16px; display: block;
+      filter: contrast(1.04) saturate(1.08) brightness(1.02);
+      cursor: pointer;
+    }
+
+    /* Countdown */
+    .countdown-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px; margin-bottom: 28px;
+    }
+    .count-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 22px; padding: 20px; text-align: center;
+    }
+    .count-num { font-size: 26px; font-weight: 700; color: var(--gold); margin-top: 6px; }
+
+    /* Section */
+    .section-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 28px; padding: 28px 22px; margin-bottom: 28px;
+    }
+    .section-title { font-size: 32px; color: var(--gold); margin-bottom: 6px; text-align: center; }
+    .section-sub { text-align: center; color: var(--muted); font-size: 14px; margin-bottom: 24px; }
+
+    /* Gallery */
+    .gallery-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 18px;
+    }
+    .photo-card {
+      background: rgba(18, 9, 25, 0.85);
+      border: 1px solid var(--border);
+      border-radius: 22px; overflow: hidden;
+      display: flex; flex-direction: column;
+      transition: transform 0.25s ease;
+    }
+    .photo-card:hover { transform: translateY(-4px); }
+    .img-box {
+      position: relative; width: 100%; height: 320px;
+      background: #14091c; overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+    }
+    .img-box img {
+      width: 100%; height: 100%; object-fit: cover;
+      filter: contrast(1.04) saturate(1.08) brightness(1.02);
+      transition: transform 0.35s ease;
+    }
+    .img-box img.rot-90 {
+      transform: rotate(-90deg) scale(1.38);
+      object-fit: cover;
+    }
+    .tag-pill {
+      position: absolute; top: 12px; right: 12px; z-index: 2;
+      background: rgba(15, 7, 20, 0.78); border: 1px solid var(--gold);
+      color: var(--gold); font-size: 11px; padding: 4px 10px; border-radius: 999px;
+    }
+    .photo-caption { padding: 14px 16px; }
+    .photo-caption h3 { font-size: 21px; color: #fff; margin-bottom: 4px; }
+    .photo-caption p { font-size: 13px; color: var(--muted); }
+
+    /* Letter Chapters */
+    .chapter {
+      background: rgba(255,255,255,0.03);
+      border-left: 3px solid var(--gold);
+      padding: 18px 20px; border-radius: 0 18px 18px 0;
+      margin-bottom: 18px;
+    }
+    .chapter h3 { color: var(--rose); font-size: 24px; margin-bottom: 8px; }
+    .chapter p { color: #f1dfee; font-size: 15px; }
+
+    /* Gifts */
+    .gift-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+    }
+    .gift-box {
+      background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+      border-radius: 20px; padding: 20px; text-align: center; cursor: pointer;
+      transition: all 0.2s;
+    }
+    .gift-box:hover { border-color: var(--rose); background: rgba(255,107,157,0.12); }
+    .gift-emoji { font-size: 36px; margin-bottom: 8px; }
+
+    /* Lightbox & Modal */
+    .modal-bg {
+      position: fixed; inset: 0; z-index: 9998;
+      background: rgba(8, 3, 12, 0.92);
+      display: none; align-items: center; justify-content: center; padding: 20px;
+    }
+    .modal-bg.open { display: flex; }
+    .modal-card {
+      max-width: 520px; width: 100%; background: #21102c;
+      border: 1px solid var(--gold); border-radius: 26px; padding: 26px;
+      text-align: center; position: relative;
+    }
+    .modal-card img {
+      max-height: 72vh; max-width: 100%; border-radius: 16px;
+    }
+    .modal-card img.rot-90 {
+      transform: rotate(-90deg);
+      max-height: 55vh;
+      margin: 40px 0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Secret PIN Vault -->
+  <div id="lockScreen">
+    <div class="vault-box">
+      <div class="lock-icon">🔒</div>
+      <div class="badge">Private Universe • Bebo & Hani</div>
+      <h2 class="serif" style="font-size:32px; color:#fff;">Secret Birthday Vault</h2>
+      <p style="font-size:13px; color:var(--muted); margin-top:4px;">Sirf hamari birthdays ka secret code hi is duniya ko khol sakta hai.</p>
+      <div class="pin-dots">
+        <div class="pin-dot" id="dot0"></div>
+        <div class="pin-dot" id="dot1"></div>
+        <div class="pin-dot" id="dot2"></div>
+        <div class="pin-dot" id="dot3"></div>
+      </div>
+      <div id="pinError"></div>
+      <div class="keypad">
+        <button class="key-btn" onclick="pressKey('1')">1</button>
+        <button class="key-btn" onclick="pressKey('2')">2</button>
+        <button class="key-btn" onclick="pressKey('3')">3</button>
+        <button class="key-btn" onclick="pressKey('4')">4</button>
+        <button class="key-btn" onclick="pressKey('5')">5</button>
+        <button class="key-btn" onclick="pressKey('6')">6</button>
+        <button class="key-btn" onclick="pressKey('7')">7</button>
+        <button class="key-btn" onclick="pressKey('8')">8</button>
+        <button class="key-btn" onclick="pressKey('9')">9</button>
+        <button class="key-btn" onclick="clearPin()" style="font-size:14px; color:var(--gold);">Clear</button>
+        <button class="key-btn" onclick="pressKey('0')">0</button>
+        <button class="key-btn" onclick="checkPin()" style="font-size:14px; background:var(--rose);">Open</button>
+      </div>
+      <p style="font-size:12px; color:var(--muted); margin-top:14px;">Hint: Bebo (13 Dec) + Hani (17 Dec)</p>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container">
+    <div class="top-bar">
+      <div style="font-weight:700; color:var(--gold);">✨ Bebo & Hani • Forever</div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="btn btn-glass" id="musicBtn" onclick="toggleMusic()">🎵 Play Melody</button>
+        <button class="btn btn-rose" onclick="celebrate()">🎉 Celebrate</button>
+      </div>
+    </div>
+
+    <!-- Hero -->
+    <div class="hero">
+      <div class="badge">13 December • Queen's Birthday</div>
+      <h1 class="serif">Happy Birthday, Meri Jaan Bebo ❤️</h1>
+      <p>Aapki muskurahat meri har thakan mita deti hai. Aaj ka din sirf aapke naam, aapki khushiyon aur hamari khoobsurat yaadon ke naam.</p>
+      <div class="hero-frame">
+        <img src="1000173676.jpg" alt="Bebo & Hani" onclick="openLightbox('1000173676.jpg', false, 'Together We Create Memories — Bebo & Hani')" />
+        <p style="font-size:13px; color:#fff; margin-top:10px; font-weight:600;">Two Hearts, One Journey — Hamesha Saath ✨</p>
+      </div>
+    </div>
+
+    <!-- Countdowns -->
+    <div class="countdown-grid">
+      <div class="count-card">
+        <div style="font-size:13px; color:var(--muted);">🎂 Bebo's Special Day (13 Dec)</div>
+        <div class="count-num" id="beboCount">Loading...</div>
+      </div>
+      <div class="count-card">
+        <div style="font-size:13px; color:var(--muted);">👑 Hani's Birthday (17 Dec)</div>
+        <div class="count-num" id="haniCount">Loading...</div>
+      </div>
+    </div>
+
+    <!-- Photo Gallery -->
+    <div class="section-card">
+      <h2 class="section-title serif">Hamari Khoobsurat Yaadein 📸</h2>
+      <p class="section-sub">Kisi bhi tasveer par tap kar ke full-screen mein dekhein</p>
+
+      <div class="gallery-grid">
+        <div class="photo-card">
+          <div class="img-box" onclick="openLightbox('1000185938.jpg', false, 'Black Twinning — Sabse Pyaara Pal')">
+            <span class="tag-pill">✨ Couple Goals</span>
+            <img src="1000185938.jpg" alt="Couple Black Outfit" />
+          </div>
+          <div class="photo-caption">
+            <h3 class="serif">Hamara Saath</h3>
+            <p>Jab aap paas hoti hain to poori duniya khoobsurat lagti hai.</p>
+          </div>
+        </div>
+
+        <div class="photo-card">
+          <div class="img-box" onclick="openLightbox('1000173680.jpg', false, 'Red Suit & Chooriyan — Mashallah')">
+            <span class="tag-pill">❤️ Mashallah</span>
+            <img src="1000173680.jpg" alt="Red Suit" />
+          </div>
+          <div class="photo-caption">
+            <h3 class="serif">Laal Rang Aur Aap</h3>
+            <p>Haathon mein mehendi aur chooriyan—aap par har rang khilta hai.</p>
+          </div>
+        </div>
+
+        <div class="photo-card">
+          <div class="img-box" onclick="openLightbox('1000173679.jpg', false, 'Masoomiyat Aur Saadgi')">
+            <span class="tag-pill">🌸 Elegance</span>
+            <img src="1000173679.jpg" alt="Black Coat" />
+          </div>
+          <div class="photo-caption">
+            <h3 class="serif">Saadgi Ka Noor</h3>
+            <p>Aapki masoomiyat aur pyaari si nazar dil jeet leti hai.</p>
+          </div>
+        </div>
+
+        <div class="photo-card">
+          <div class="img-box" onclick="openLightbox('1000192850.jpg', false, 'Pink Aesthetic Mirror Selfie')">
+            <span class="tag-pill">🎀 Cute Style</span>
+            <img src="1000192850.jpg" alt="Mirror Selfie" />
+          </div>
+          <div class="photo-caption">
+            <h3 class="serif">Pyaara Andaaz</h3>
+            <p>Aapka har ek andaaz sabse alag aur sabse khaas hai.</p>
+          </div>
+        </div>
+
+        <div class="photo-card">
+          <div class="img-box" onclick="openLightbox('1000199999.jpg', true, 'Sweetest Smile — Butterfly Clips')">
+            <span class="tag-pill">🦋 Cutie</span>
+            <img src="1000199999.jpg" class="rot-90" alt="Butterfly Clips" />
+          </div>
+          <div class="photo-caption">
+            <h3 class="serif">Meethi Muskurahat</h3>
+            <p>Aapki ek muskurahat poore din ki thakan mita deti hai.</p>
+          </div>
+        </div>
+
+        <div class="photo-card">
+          <div class="img-box" onclick="openLightbox('1000192853.jpg', true, 'Jhumka & Golden Smile')">
+            <span class="tag-pill">💫 Jhumka</span>
+            <img src="1000192853.jpg" class="rot-90" alt="Jhumka Selfie" />
+          </div>
+          <div class="photo-caption">
+            <h3 class="serif">Jhumke Ki Chamak</h3>
+            <p>Aapki aankhon ki chamak ke aage har cheez pheeki lagti hai.</p>
+          </div>
+        </div>
+
+        <div class="photo-card">
+          <div class="img-box" onclick="openLightbox('1000192844.jpg', true, 'Precious Close-up')">
+            <span class="tag-pill">💍 Precious</span>
+            <img src="1000192844.jpg" class="rot-90" alt="Ring Selfie" />
+          </div>
+          <div class="photo-caption">
+            <h3 class="serif">Dil Ke Kareeb</h3>
+            <p>Aapki har tasveer mere liye kisi anmol khazane se kam nahi.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Video Call Memories -->
+      <h3 class="serif" style="font-size:28px; color:var(--rose); text-align:center; margin:34px 0 16px;">"Still Her" — Hamari Late-Night Calls 📞❤️</h3>
+      <div class="gallery-grid">
+        <div class="photo-card">
+          <div class="img-box" onclick="openLightbox('1000186134.jpg', false, '1:41:01 — Ghanton Baatein')">
+            <span class="tag-pill">⏱️ 1:41:01</span>
+            <img src="1000186134.jpg" alt="Call 1" />
+          </div>
+          <div class="photo-caption">
+            <h3 class="serif">Waqt Ka Pata Hi Nahi Chalta</h3>
+            <p>Aapko dekhte hue ghante bhi pal bhar mein guzar jate hain.</p>
+          </div>
+        </div>
+
+        <div class="photo-card">
+          <div class="img-box" onclick="openLightbox('1000186136.jpg', false, '1:50:06 — Neend Bhi Aapke Saath')">
+            <span class="tag-pill">⏱️ 1:50:06</span>
+            <img src="1000186136.jpg" alt="Call 2" />
+          </div>
+          <div class="photo-caption">
+            <h3 class="serif">Sukoon Bhari Raatein</h3>
+            <p>Aapki awaaz aur aapka chehra hi mera asli sukoon hai.</p>
+          </div>
+        </div>
+
+        <div class="photo-card">
+          <div class="img-box" onclick="openLightbox('1000183608.jpg', false, '8:55 PM — Dil Se Dil Tak')">
+            <span class="tag-pill">🫶 Heart Signal</span>
+            <img src="1000183608.jpg" alt="Call 3" />
+          </div>
+          <div class="photo-caption">
+            <h3 class="serif">Bina Lafzon Ke Pyar</h3>
+            <p>Screen ke us paar se bhi aapka pyar dil tak mehsoos hota hai.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4-Chapter Emotional Letter -->
+    <div class="section-card">
+      <h2 class="section-title serif">Dil Ki Gehraiyon Se — Sirf Aapke Liye 💌</h2>
+      <p class="section-sub">Hani ki taraf se Bebo ke naam ek chota sa paigham</p>
+
+      <div class="chapter">
+        <h3 class="serif">Chapter 1: 13 December Ki Roshni</h3>
+        <p>Meri pyaari Bebo, aaj ka din meri zindagi ke sabse khoobsurat dinon mein se ek hai, kyunki aaj ke din aap is duniya mein aayin. Aap sirf meri mohabbat nahi, balki meri har dua ka sabse khoobsurat jawab hain. Allah aapko hamesha khush, salamat aur muskurata rakhe.</p>
+      </div>
+
+      <div class="chapter">
+        <h3 class="serif">Chapter 2: 13 Aur 17 December Ka Rishta</h3>
+        <p>Dekhein na, Allah ne hamari birthdays mein bhi sirf 4 din ka faasla rakha hai—13 December ko aap aur 17 December ko main. Jaise hamari tareekhein ek doosre ke bilkul qareeb hain, waise hi hamare dil bhi hamesha ek doosre ke saath jude rahenge.</p>
+      </div>
+
+      <div class="chapter">
+        <h3 class="serif">Chapter 3: Aapki Izzat Aur Aapka Saath</h3>
+        <p>Main aapse wada karta hoon ke zindagi ke har mod par main aapki izzat, aapki khushi aur aapke bharose ko sabse upar rakhunga. Chahe waqt kaisa bhi ho, aapka Hani hamesha aapke saath dhaal ban kar khada rahega.</p>
+      </div>
+
+      <div class="chapter">
+        <h3 class="serif">Chapter 4: Aane Wale Saalon Ka Wada</h3>
+        <p>Yeh sirf ek birthday nahi, balki hamare aane wale har saal ki khushiyon ki shuruat hai. Dua hai ke agle har saal hum isi tarah ek doosre ki khushiyan manate rahein. Happy Birthday once again, meri jaan! ❤️</p>
+      </div>
+    </div>
+
+    <!-- Interactive Surprises -->
+    <div class="section-card">
+      <h2 class="section-title serif">Aapke Liye Chote Se Surprises 🎁</h2>
+      <p class="section-sub">Har box par click kar ke apna gift dekhein</p>
+      <div class="gift-grid">
+        <div class="gift-box" onclick="showGift('🌹 Rose Bouquet', 'Yeh khoobsurat gulab sirf aapke liye—kyunki aapki khushboo aur aapki saadgi kisi bhi phool se zyada pyaari hai.')">
+          <div class="gift-emoji">🌹</div>
+          <strong>Special Roses</strong>
+        </div>
+        <div class="gift-box" onclick="showGift('🎟️ VIP Birthday Coupon', 'Is coupon ke zariye aapki har farmaish aur aapki pasand ki treat Hani par wajib hai—jab aap kahein!')">
+          <div class="gift-emoji">🎟️</div>
+          <strong>VIP Treat Pass</strong>
+        </div>
+        <div class="gift-box" onclick="showGift('🤲 Dil Se Dua', 'Ya Allah, meri Bebo ke naseeb mein har khushi likh de, unki har pareshani door farma aur unhein hamesha apni hifazat mein rakh. Ameen.')">
+          <div class="gift-emoji">🤲</div>
+          <strong>Hani Ki Dua</strong>
+        </div>
+        <div class="gift-box" onclick="showGift('🎂 Birthday Wish', 'Aankhein band karein, ek pyaari si wish mangein aur muskurayein—aapki har jayaz khwahish zaroor poori hogi, InshaAllah!')">
+          <div class="gift-emoji">🎂</div>
+          <strong>Make A Wish</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lightbox / Gift Modal -->
+  <div class="modal-bg" id="modalBg" onclick="closeModal()">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <div id="modalBody"></div>
+      <button class="btn btn-gold" style="margin-top:18px;" onclick="closeModal()">Band Karein ✨</button>
+    </div>
+  </div>
+
+  <script>
+    let pin = "";
+    const SECRET = "1317";
+
+    function updateDots() {
+      for (let i = 0; i < 4; i++) {
+        const d = document.getElementById("dot" + i);
+        if (d) d.classList.toggle("filled", i < pin.length);
+      }
+    }
+
+    window.pressKey = function(num) {
+      if (pin.length < 4) {
+        pin += num;
+        document.getElementById("pinError").textContent = "";
+        updateDots();
+        if (pin.length === 4) setTimeout(window.checkPin, 180);
+      }
+    };
+
+    window.clearPin = function() {
+      pin = "";
+      document.getElementById("pinError").textContent = "";
+      updateDots();
+    };
+
+    window.checkPin = function() {
+      if (pin === SECRET) {
+        document.getElementById("lockScreen").classList.add("unlocked");
+        window.celebrate();
+      } else {
+        document.getElementById("pinError").textContent = "Galat code! Dobara koshish karein (1317)";
+        pin = "";
+        updateDots();
+      }
+    };
+
+    window.openLightbox = function(src, rotate, caption) {
+      const cls = rotate ? 'class="rot-90"' : '';
+      document.getElementById("modalBody").innerHTML =
+        `<img src="${src}" ${cls} alt="Memory" /><p style="margin-top:14px; color:#fff; font-weight:600;">${caption}</p>`;
+      document.getElementById("modalBg").classList.add("open");
+    };
+
+    window.showGift = function(title, text) {
+      document.getElementById("modalBody").innerHTML =
+        `<h2 class="serif" style="font-size:30px; color:var(--gold); margin-bottom:10px;">${title}</h2><p style="color:#f5e6f3; font-size:16px;">${text}</p>`;
+      document.getElementById("modalBg").classList.add("open");
+    };
+
+    window.closeModal = function() {
+      document.getElementById("modalBg").classList.remove("open");
+    };
+
+    window.celebrate = function() {
+      for (let i = 0; i < 28; i++) {
+        const el = document.createElement("div");
+        el.textContent = ["❤️", "✨", "🎂", "🌹", "💖"][i % 5];
+        el.style.position = "fixed";
+        el.style.left = Math.random() * 100 + "vw";
+        el.style.top = "-30px";
+        el.style.fontSize = (18 + Math.random() * 16) + "px";
+        el.style.zIndex = "10000";
+        el.style.pointerEvents = "none";
+        el.style.transition = "transform 2.6s linear, opacity 2.6s ease";
+        document.body.appendChild(el);
+        requestAnimationFrame(() => {
+          el.style.transform = `translateY(105vh) rotate(${Math.random() * 360}deg)`;
+          el.style.opacity = "0";
+        });
+        setTimeout(() => el.remove(), 2700);
+      }
+    };
+
+    // Soft Web Audio Melody
+    let audioCtx = null, playing = false, timer = null;
+    window.toggleMusic = function() {
+      const btn = document.getElementById("musicBtn");
+      if (playing) {
+        playing = false;
+        clearInterval(timer);
+        btn.textContent = "🎵 Play Melody";
+        return;
+      }
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      playing = true;
+      btn.textContent = "⏸️ Pause Melody";
+      const notes = [261.63, 261.63, 293.66, 261.63, 349.23, 329.63, 261.63, 261.63, 293.66, 261.63, 392.00, 349.23];
+      let idx = 0;
+      const playNote = () => {
+        if (!playing) return;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "sine";
+        osc.frequency.value = notes[idx % notes.length];
+        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.55);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.55);
+        idx++;
+      };
+      playNote();
+      timer = setInterval(playNote, 600);
+    };
+
+    // Countdowns
+    function updateCountdowns() {
+      const now = new Date();
+      const yr = now.getFullYear();
+      const nextDate = (m, d) => {
+        let t = new Date(yr, m - 1, d, 0, 0, 0);
+        if (now > t && !(now.getMonth() === m - 1 && now.getDate() === d)) t = new Date(yr + 1, m - 1, d);
+        return t;
+      };
+      const fmt = (target) => {
+        const diff = target - now;
+        if (diff <= 0) return "🎉 Aaj Special Din Hai!";
+        const days = Math.floor(diff / 86400000);
+        const hrs = Math.floor((diff / 3600000) % 24);
+        const mins = Math.floor((diff / 60000) % 60);
+        return `${days}d ${hrs}h ${mins}m`;
+      };
+      document.getElementById("beboCount").textContent = fmt(nextDate(12, 13));
+      document.getElementById("haniCount").textContent = fmt(nextDate(12, 17));
+    }
+    updateCountdowns();
+    setInterval(updateCountdowns, 30000);
+  </script>
+</body>
+</html>
